@@ -32,7 +32,11 @@ public class BatchConfiguration {
 
   @Autowired
   public StepBuilderFactory stepBuilderFactory;
-
+/**
+ * TODO reader()crea un ItemReader. Busca un archivo llamado sample-data.csvy analiza cada elemento
+ *  de línea con suficiente información para convertirlo en un Person.
+ * @return
+ */
   @Bean
   public FlatFileItemReader<Person> reader() {
     return new FlatFileItemReaderBuilder<Person>()
@@ -45,12 +49,22 @@ public class BatchConfiguration {
       }})
       .build();
   }
-
+/**
+ * TODO processor()crea una instancia de la PersonItemProcessorque definió anteriormente,
+ *  destinada a convertir los datos a mayúsculas.
+ * @return
+ */
   @Bean
   public PersonItemProcessor processor() {
     return new PersonItemProcessor();
   }
-
+/**
+ * writer(DataSource)crea un ItemWriter. Este está dirigido a un destino JDBC y 
+ * automáticamente obtiene una copia del origen de datos creado por @EnableBatchProcessing. 
+ * Incluye la instrucción SQL necesaria para insertar una sola Person, 
+ * @param dataSource
+ * @return
+ */
   @Bean
   public JdbcBatchItemWriter<Person> writer(DataSource dataSource) {
     return new JdbcBatchItemWriterBuilder<Person>()
@@ -60,6 +74,15 @@ public class BatchConfiguration {
       .build();
   }
   
+  
+  /**
+   * En esta definición de trabajo, necesita un incrementador,
+   *  porque los trabajos usan una base de datos para mantener el estado de ejecución.
+   *  Luego, enumera cada paso (aunque este trabajo tiene solo un paso).
+   * @param listener
+   * @param step1
+   * @return
+   */
   @Bean
   public Job importUserJob(JobCompletionNotificationListener listener, Step step1) {
     return jobBuilderFactory.get("importUserJob")
@@ -69,7 +92,13 @@ public class BatchConfiguration {
       .end()
       .build();
   }
-
+/**
+ * En la definición de paso, define cuántos datos escribir a la vez. En este caso,
+ * escribe hasta diez registros a la vez. A continuación, configure el lector,
+ * el procesador y el escritor utilizando los beans inyectados anteriormente.
+ * @param writer
+ * @return
+ */
   @Bean
   public Step step1(JdbcBatchItemWriter<Person> writer) {
     return stepBuilderFactory.get("step1")
@@ -79,5 +108,11 @@ public class BatchConfiguration {
       .writer(writer)
       .build();
   }
+  
+  /*
+   * chunk()tiene el prefijo <Person,Person>porque es un método genérico. 
+   * Esto representa los tipos de entrada y salida de cada "fragmento" 
+   * de procesamiento y se alinea con ItemReader<Person>y ItemWriter<Person>.
+   */
 
 }

@@ -10,7 +10,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.juan.batch.batchprocessing.Person;
-
+/**
+ * TODO El JobCompletionNotificationListenerescucha cuando se realiza un trabajo BatchStatus.
+ * COMPLETEDy luego lo usa JdbcTemplatepara inspeccionar los resultados.
+ * @author juanj
+ *
+ */
 @Component
 public class JobCompletionNotificationListener extends JobExecutionListenerSupport {
 
